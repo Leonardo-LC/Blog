@@ -3,7 +3,8 @@ from wtforms.fields.simple import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 
-class NameForm(FlaskForm):
-    name = StringField("Qual o seu nome? ", validators=[DataRequired()])
+class Userform(FlaskForm):
+    name = StringField("Nome", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired()])
     submit = SubmitField("Enviar")
 
