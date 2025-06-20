@@ -1,46 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make Post</title>
+    <title>Receitas</title>
     <!-- Bootstrap CSS -->
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="post.css" rel="stylesheet">
-
-<body>
-
+    <style>
+        .receita-card {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .receita-imagem {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
     {% include 'navbar.html' %}
 
-    <h1>Adicionar Receita</h1>
-    <form action="/adicionar" method="POST">
-        <input type="text" name="description" required>
-        <button type="submit"> Adicionar receita</button>
-    </form>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Adicionar Nova Receita</h2>
+                        <form action="/adicionar" method="POST" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="description" class="form-label">Título da Receita</label>
+                                <input type="text" class="form-control" id="description" name="description" required>
+                            </div>
 
-    <h1>Receitas</h1>
-<ul>
-    {% for receitas in receitas %}
-        <li>
+                            <div class="form-group">
+                                <label for="descricao" class="form-label">Descrição</label>
+                                <textarea class="form-control" id="descricao" name="descricao" rows="3" required></textarea>
+                            </div>
 
-            <form action="/update/{{ receitas.id }}"
-                  method="POST" style="display: inline">
-                    <input type="text" name="description"
-                           value="{{ receitas.description }}">
-                    <button type="submit">Atualizar receita</button>
-            </form>
+                            <div class="form-group">
+                                <label for="foto" class="form-label">Foto da Receita</label>
+                                <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                            </div>
 
-            <form action="/delete/{{ receitas.id }}"
-                  method="POST" style="display: inline" >
-                <button type="submit">Excluir receita</button>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Adicionar Receita</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
-            </form>
-        </li>
-    {% endfor %}
-</ul>
+                <h2 class="text-center mb-4">Minhas Receitas</h2>
 
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                {% for receita in receitas %}
+                <div class="card receita-card mb-4">
+                    <div class="card-body">
+                        {% if receita.foto %}
+                        <img src="{{ url_for('static', filename='img/' + receita.foto) }}" class="receita-imagem">
+                        {% endif %}
 
+                        <h3>{{ receita.description }}</h3>
+                        <p class="text-muted">{{ receita.descricao }}</p>
+
+                        <div class="d-flex gap-2">
+                            <form action="/update/{{ receita.id }}" method="POST" class="d-inline">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" name="description" value="{{ receita.description }}">
+                                    <button type="submit" class="btn btn-warning">Atualizar</button>
+                                </div>
+                                <textarea class="form-control mb-2" name="descricao">{{ receita.descricao }}</textarea>
+                                <button type="submit" class="btn btn-warning">Atualizar</button>
+                            </form>
+
+                            <form action="/delete/{{ receita.id }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger">Excluir</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

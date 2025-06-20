@@ -11,15 +11,25 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+import os
+from controllers.receitas_controller import adicionar_receita
+from controllers.upload_controller import allowed_file, save_uploaded_file
 #----------------------------------
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'senhasecreta'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['UPLOAD_FOLDER'] = 'static/img'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 db = SQLAlchemy(app)
 
 class Receitas(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(100), unique= True, nullable=False)
+    description = db.Column(db.String(100), unique= True, nullable=False) #Título da receita
+    descricao = db.Column(db.Text, nullable=False)
+    foto = db.Column(db.String(100))
 
 @app.route('/')
 def home():
@@ -27,17 +37,8 @@ def home():
 
 #Crud
 @app.route('/adicionar', methods=['POST'])
-def adicionar_receita():
-    description = request.form['description']
-
-    receita_existente = Receitas.query.filter_by(description = description).first()
-    if receita_existente:
-        return 'Erro: Esta receita já foi cadastrada!', 400
-
-    nova_receita = Receitas(description = description)
-    db.session.add(nova_receita)
-    db.session.commit()
-    return redirect('/home')
+def adicionar_receita_route():
+    return adicionar_receita(request, db, Receitas)
 
 #cRud
 @app.route('/home')
@@ -52,6 +53,7 @@ def atualizar_receita(receitas_id):
 
     if receita:
         receita.description = request.form['description']
+        receita.descricao = request.form['descricao']
         db.session.commit()
     return redirect('/home')
 
