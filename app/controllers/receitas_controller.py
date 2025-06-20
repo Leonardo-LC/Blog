@@ -17,7 +17,7 @@ def adicionar_receita(request, db, Receitas):
         return redirect(url_for('ler_receita'))
 
     nova_receita = Receitas(
-        description=description,
+        description=description, #titulo da receita
         descricao=descricao,
         foto=foto
     )
