@@ -1,78 +1,86 @@
-import datetime
-from dbm import error
-from functools import wraps
-from flask import session, redirect, url_for
-from flask import Flask, send_from_directory, render_template, request, redirect, session, url_for, flash
-#from app.controllers.application import Application
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
+
+from models.cliente import Cliente
+from models.animal import Animal
+from    controllers.serializador import Serializador
 import os
-from controllers.receitas_controller import adicionar_receita
-from controllers.upload_controller import allowed_file, save_uploaded_file
-#----------------------------------
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'senhasecreta'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-app.config['UPLOAD_FOLDER'] = 'static/img'
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
-db = SQLAlchemy(app)
+app.secret_key = '123'
 
-class Receitas(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(100), unique= True, nullable=False) #Título da receita
-    descricao = db.Column(db.Text, nullable=False)
-    foto = db.Column(db.String(100))
+# Banco de dados JSON
+db_clientes = Serializador("clientes.json")
+db_pets = Serializador("pets.json")
 
+# --- Rotas de Autenticação ---
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        senha = request.form['senha']
+        clientes = db_clientes.get_models()
+        for cliente in clientes:
+            if cliente['email'] == email and check_password_hash(cliente['senha'], senha):
+                session['user_email'] = email
+                flash('Login realizado com sucesso!', 'success')
+                return redirect(url_for('meus_pets'))
+        flash('E-mail ou senha incorretos!', 'danger')
+    return render_template('login.html')
+
+@app.route('/cadastro', methods=['GET', 'POST'])
+def cadastro():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']
+        telefone = request.form['telefone']
+        senha = generate_password_hash(request.form['senha'])
+
+        if db_clientes.verify_email(email):
+            flash('E-mail já cadastrado!', 'danger')
+        else:
+            novo_cliente = Cliente(nome, email, telefone)
+            novo_cliente.senha = senha  # Adiciona a senha hash
+            db_clientes.adicionar_cliente(novo_cliente)
+            flash('Conta criada com sucesso! Faça login.', 'success')
+            return redirect(url_for('login'))
+    return render_template('cadastro.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_email', None)
+    return redirect(url_for('home'))
+
+# --- Rotas de Pets ---
+@app.route('/meus-pets')
+def meus_pets():
+    if 'user_email' not in session:
+        return redirect(url_for('login'))
+
+    pets = db_pets.get_models()
+    user_pets = [pet for pet in pets if pet['dono_email'] == session['user_email']]
+    return render_template('meus_pets.html', pets=user_pets)
+
+@app.route('/adicionar-pet', methods=['GET', 'POST'])
+def adicionar_pet():
+    if 'user_email' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        nome = request.form['nome']
+        especie = request.form['especie']
+        idade = request.form['idade']
+        novo_pet = Animal(nome, especie, idade, session['user_email'])
+        db_pets.adicionar_pet(novo_pet)
+        flash('Pet adicionado com sucesso!', 'success')
+        return redirect(url_for('meus_pets'))
+    return render_template('adicionar_pet.html')
+
+# --- Rota Home ---
 @app.route('/')
 def home():
-    return render_template('base.html')
-
-#Crud
-@app.route('/adicionar', methods=['POST'])
-def adicionar_receita_route():
-    return adicionar_receita(request, db, Receitas)
-
-#cRud
-@app.route('/home')
-def ler_receita():
-    receitas = Receitas.query.all()
-    return render_template('post.html', receitas=receitas)
-
-#crUd
-@app.route('/update/<int:receitas_id>', methods=['POST'])
-def atualizar_receita(receitas_id):
-    receita = Receitas.query.get(receitas_id)
-
-    if receita:
-        receita.description = request.form['description']
-        receita.descricao = request.form['descricao']
-        db.session.commit()
-    return redirect('/home')
-
-
-#cruD
-@app.route('/delete/<int:receitas_id>', methods=['POST'])
-def deletar_receita(receitas_id):
-    receita = Receitas.query.get(receitas_id)
-
-    if receita:
-        db.session.delete(receita)
-        db.session.commit()
-    return redirect('/home')
-
-
-
-#-----------------------------------------------------------------------------
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    os.makedirs("models/controllers/database", exist_ok=True)
+    app.run(debug=True)

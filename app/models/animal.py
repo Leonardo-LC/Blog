@@ -1,34 +1,14 @@
-from abc import ABC
-
-class Animal(ABC):
-
-    def __init__(self, nome:str, idade: int, peso: float, tipo: str, dono):
+class Animal:
+    def __init__(self, nome: str, especie: str, idade: int, dono_email: str):
         self.nome = nome
+        self.especie = especie
         self.idade = idade
-        self.peso = peso
-        self.tipo = tipo
-        self.dono = dono
-        self.servicos_contratados = {}
-        dono.pets.append(self)
+        self.dono_email = dono_email  # Relacionamento com Cliente
 
     def to_dict(self):
         return {
             "nome": self.nome,
+            "especie": self.especie,
             "idade": self.idade,
-            "peso": self.peso,
-            "tipo": self.tipo,
-            "dono_nome": self.dono.nome if self.dono else None,
-            "servicos_contratados": self.servicos_contratados
+            "dono_email": self.dono_email
         }
-
-    def contratar_servicos(self, servico: str, valor: float):
-        self.servicos_contratados[servico] = valor
-
-    def total_servicos(self) -> float:
-        return sum(self.servicos_contratados.values())
-
-    def __str__(self):
-        return f'{self.nome} ({self.tipo}) - {self.idade} anos - {self.peso}kg - Dono: {self.dono.nome}'
-
-    def __repr__(self):
-        return f"Animal(nome='{self.nome}', tipo='{self.tipo}')"
