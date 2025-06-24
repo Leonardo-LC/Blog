@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>Adicionar Pet</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome do Pet</label>
+                <input type="text" class="form-control" id="nome" name="nome" required>
+            </div>
+            <div class="mb-3">
+                <label for="especie" class="form-label">Espécie</label>
+                <select class="form-select" id="especie" name="especie" required>
+                    <option value="">Selecione...</option>
+                    <option value="Cachorro">Cachorro</option>
+                    <option value="Gato">Gato</option>
+                    <option value="Pássaro">Pássaro</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="idade" class="form-label">Idade (anos)</label>
+                <input type="number" class="form-control" id="idade" name="idade" min="0" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{{ url_for('meus_pets') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

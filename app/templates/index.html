@@ -1,8 +1,14 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
 
 {% block content %}
-
-
-
+<div class="jumbotron">
+    <h1 class="display-4">Bem-vindo ao Patinhas do Bem!</h1>
+    <p class="lead">Sistema de adoção de animais</p>
+    <hr class="my-4">
+    {% if 'user_email' not in session %}
+        <p>Faça login ou cadastre-se para começar.</p>
+        <a class="btn btn-primary btn-lg" href="{{ url_for('login') }}" role="button">Login</a>
+        <a class="btn btn-success btn-lg" href="{{ url_for('cadastro') }}" role="button">Cadastre-se</a>
+    {% endif %}
+</div>
 {% endblock %}
