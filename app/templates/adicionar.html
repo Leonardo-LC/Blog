@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Adicionar Receita</h1>
+<form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">Título</label>
+        <input type="text" name="titulo" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Instruções</label>
+        <textarea name="instrucoes" class="form-control" rows="5" required></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tempo de Preparo (minutos)</label>
+        <input type="number" name="tempo_preparo" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Foto</label>
+        <input type="file" name="foto" class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Categorias</label><br>
+        {% for categoria in categorias %}
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="categorias" value="{{ categoria.id }}">
+            <label class="form-check-label">{{ categoria.nome }}</label>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="ingredientes-container" class="mb-3">
+        <label class="form-label">Ingredientes</label>
+        <div class="ingrediente mb-2">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" name="ingredientes[0][nome]" class="form-control" placeholder="Nome" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="ingredientes[0][quantidade]" class="form-control" placeholder="Quantidade" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="ingredientes[0][unidade]" class="form-control" placeholder="Unidade" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" id="add-ingrediente" class="btn btn-secondary mb-3">+ Adicionar Ingrediente</button>
+    <button type="submit" class="btn btn-primary d-block">Salvar Receita</button>
+</form>
+
+<script>
+let ingredienteCount = 1;
+document.getElementById('add-ingrediente').addEventListener('click', function() {
+    const container = document.getElementById('ingredientes-container');
+    const newIngrediente = document.createElement('div');
+    newIngrediente.className = 'ingrediente mb-2';
+    newIngrediente.innerHTML = `
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="ingredientes[${ingredienteCount}][nome]" class="form-control" placeholder="Nome" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="ingredientes[${ingredienteCount}][quantidade]" class="form-control" placeholder="Quantidade" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="ingredientes[${ingredienteCount}][unidade]" class="form-control" placeholder="Unidade" required>
+            </div>
+        </div>
+    `;
+    container.appendChild(newIngrediente);
+    ingredienteCount++;
+    document.querySelector('input[name="ingrediente_count"]').value = ingredienteCount;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Receitas</h1>
+<a href="{{ url_for('adicionar_receita') }}" class="btn btn-primary">Adicionar Receita</a>
+
+<div class="row mt-4">
+    {% for receita in receitas %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            {% if receita.foto %}
+            <img src="{{ url_for('static', filename='img/' + receita.foto) }}" class="card-img-top">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ receita.titulo }}</h5>
+                <p class="card-text">{{ receita.instrucoes[:100] }}...</p>
+                <p><small>Tempo: {{ receita.tempo_preparo }} min</small></p>
+                <div>
+                    {% for categoria in receita.categorias %}
+                    <span class="badge bg-secondary">{{ categoria.nome }}</span>
+                    {% endfor %}
+                </div>
+                <a href="#" class="btn btn-sm btn-primary">Ver Receita</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

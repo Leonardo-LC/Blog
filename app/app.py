@@ -1,76 +1,72 @@
-import datetime
-from dbm import error
-from functools import wraps
-from flask import session, redirect, url_for
-from flask import Flask, send_from_directory, render_template, request, redirect, session, url_for, flash
-#from app.controllers.application import Application
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from app import create_app
+from app.extensions import db
+from flask import render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 import os
-from controllers.receitas_controller import adicionar_receita
 from controllers.upload_controller import allowed_file, save_uploaded_file
-#----------------------------------
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'senhasecreta'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-app.config['UPLOAD_FOLDER'] = 'static/img'
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
-db = SQLAlchemy(app)
+app = create_app()
 
-class Receitas(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(100), unique= True, nullable=False) #Título da receita
-    descricao = db.Column(db.Text, nullable=False)
-    foto = db.Column(db.String(100))
+# Importar modelos DEPOIS de criar o app
+with app.app_context():
+    from models.usuario import Usuario
+    from models.receita import Receita
+    from models.ingrediente import Ingrediente
+    from models.categoria import Categoria
 
 @app.route('/')
 def home():
     return render_template('base.html')
 
-#Crud
-@app.route('/adicionar', methods=['POST'])
-def adicionar_receita_route():
-    return adicionar_receita(request, db, Receitas)
+@app.route('/receitas')
+def listar_receitas():
+    receitas = Receita.query.all()
+    return render_template('receitas/listar.html', receitas=receitas)
 
-#cRud
-@app.route('/home')
-def ler_receita():
-    receitas = Receitas.query.all()
-    return render_template('post.html', receitas=receitas)
 
-#crUd
-@app.route('/update/<int:receitas_id>', methods=['POST'])
-def atualizar_receita(receitas_id):
-    receita = Receitas.query.get(receitas_id)
+@app.route('/receitas/adicionar', methods=['GET', 'POST'])
+def adicionar_receita():
+    if request.method == 'POST':
+        # Criar receita básica
+        nova_receita = Receita(
+            titulo=request.form['titulo'],
+            instrucoes=request.form['instrucoes'],
+            tempo_preparo=request.form['tempo_preparo'],
+            usuario_id=1,  # Temporário - substituir por usuário logado
+            foto=save_uploaded_file(request.files.get('foto'))
+        )
 
-    if receita:
-        receita.description = request.form['description']
-        receita.descricao = request.form['descricao']
+        db.session.add(nova_receita)
         db.session.commit()
-    return redirect('/home')
 
+        # Adicionar ingredientes
+        ingrediente_count = int(request.form.get('ingrediente_count', 1))
+        for i in range(ingrediente_count):
+            if f'ingredientes[{i}][nome]' in request.form:
+                ingrediente = Ingrediente(
+                    nome=request.form[f'ingredientes[{i}][nome]'],
+                    quantidade=request.form[f'ingredientes[{i}][quantidade]'],
+                    unidade=request.form[f'ingredientes[{i}][unidade]'],
+                    receita_id=nova_receita.id
+                )
+                db.session.add(ingrediente)
 
-#cruD
-@app.route('/delete/<int:receitas_id>', methods=['POST'])
-def deletar_receita(receitas_id):
-    receita = Receitas.query.get(receitas_id)
+        # Adicionar categorias
+        categorias_selecionadas = request.form.getlist('categorias')
+        for cat_id in categorias_selecionadas:
+            categoria = Categoria.query.get(cat_id)
+            if categoria:
+                nova_receita.categorias.append(categoria)
 
-    if receita:
-        db.session.delete(receita)
         db.session.commit()
-    return redirect('/home')
+        flash('Receita adicionada com sucesso!', 'success')
+        return redirect(url_for('listar_receitas'))
+
+    categorias = Categoria.query.all()
+    return render_template('receitas/adicionar.html', categorias=categorias)
 
 
-
-#-----------------------------------------------------------------------------
+# ... (outras rotas CRUD)
 
 if __name__ == '__main__':
     with app.app_context():
