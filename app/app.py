@@ -23,7 +23,7 @@ def salvar_clientes(clientes):
         json.dump([cliente.to_dict() for cliente in clientes], f)
 
 
-@app.route('/')
+@app.route('/lista')
 def index():
     clientes = carregar_clientes()
     return render_template('index.html', clientes=clientes)

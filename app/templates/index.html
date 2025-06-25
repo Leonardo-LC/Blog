@@ -45,6 +45,7 @@
                     <td>{{ cliente.pets[0].nome }}</td>
                     <td>{{ cliente.pets[0].tipo }}</td>
                     <td>
+                        <br/><br/><br/>
                         <form method="POST" action="/editar/{{ loop.index0 }}" style="display:inline;">
                             <input type="text" name="nome" value="{{ cliente.nome }}" required>
                             <input type="text" name="telefone" value="{{ cliente.telefone }}" required>

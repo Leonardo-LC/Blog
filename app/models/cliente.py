@@ -1,8 +1,9 @@
+
 class Cliente:
-    def __init__(self, nome, telefone):
+    def __init__(self, nome, telefone, pets=None):
         self.nome = nome
         self.telefone = telefone
-        self.pets = []  # Cada pet será um dicionário {'nome': str, 'tipo': str}
+        self.pets = pets if pets is not None else []
 
     def adicionar_pet(self, nome_pet, tipo_pet):
         self.pets.append({
@@ -16,4 +17,3 @@ class Cliente:
             'telefone': self.telefone,
             'pets': self.pets
         }
-
