@@ -2,25 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for
 from models.cliente import Cliente
 import json
 import os
+from flask import Flask, render_template, request, redirect, url_for
+from models.cliente import Cliente
+from controllers.cliente_controller import carregar_clientes, salvar_clientes
 
 app = Flask(__name__)
 app.secret_key = '123'
 
-# Banco de dados
-DB_FILE = 'clientes_db.json'
-
-
-def carregar_clientes():
-    if os.path.exists(DB_FILE):
-        with open(DB_FILE, 'r') as f:
-            dados = json.load(f)
-            return [Cliente(**cliente) for cliente in dados]
-    return []
-
-
-def salvar_clientes(clientes):
-    with open(DB_FILE, 'w') as f:
-        json.dump([cliente.to_dict() for cliente in clientes], f)
 
 
 @app.route('/lista')
