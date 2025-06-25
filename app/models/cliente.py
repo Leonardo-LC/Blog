@@ -16,3 +16,4 @@ class Cliente:
             'telefone': self.telefone,
             'pets': self.pets
         }
+
