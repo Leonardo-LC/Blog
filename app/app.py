@@ -44,5 +44,26 @@ def remover(cliente_id):
     return redirect(url_for('index'))
 
 
+@app.route('/editar/<int:cliente_id>', methods=['POST'])
+def editar(cliente_id):
+    clientes = carregar_clientes()
+
+    if 0 <= cliente_id < len(clientes):
+        cliente = clientes[cliente_id]
+
+        # Atualiza os dados
+        cliente.nome = request.form['nome']
+        cliente.telefone = request.form['telefone']
+
+        # Atualiza o pet (assumindo 1 pet por cliente)
+        if len(cliente.pets) > 0:
+            cliente.pets[0]['nome'] = request.form['nome_pet']
+            cliente.pets[0]['tipo'] = request.form['tipo_pet']
+
+        salvar_clientes(clientes)
+
+    return redirect(url_for('index'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
