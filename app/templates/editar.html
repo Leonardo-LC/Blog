@@ -1,0 +1,28 @@
+<!-- templates/editar.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Editar Cliente</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">Nome do Cliente</label>
+            <input type="text" name="nome" value="{{ cliente.nome }}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Telefone</label>
+            <input type="text" name="telefone" value="{{ cliente.telefone }}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Nome do Pet</label>
+            <input type="text" name="nome_pet" value="{{ pet.nome }}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Tipo do Pet</label>
+            <input type="text" name="tipo_pet" value="{{ pet.tipo }}" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

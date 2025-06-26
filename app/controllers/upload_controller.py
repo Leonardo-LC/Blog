@@ -10,7 +10,6 @@ def allowed_file(filename):
 
 def save_uploaded_file(file):
     if file and allowed_file(file.filename):
-        # Criar o diretório se não existir
         upload_folder = current_app.config['UPLOAD_FOLDER']
         os.makedirs(upload_folder, exist_ok=True)
 

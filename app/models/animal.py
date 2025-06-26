@@ -1,14 +1,11 @@
 class Animal:
-    def __init__(self, nome: str, especie: str, idade: int, dono_email: str):
-        self.nome = nome
-        self.especie = especie
-        self.idade = idade
-        self.dono_email = dono_email  # Relacionamento com Cliente
+    nome: str
+    especie: str
+    idade: int
+    dono: 'Cliente'  # Agora referencia o objeto Cliente diretamente
 
-    def to_dict(self):
-        return {
-            "nome": self.nome,
-            "especie": self.especie,
-            "idade": self.idade,
-            "dono_email": self.dono_email
-        }
+    def get_idade_humana(self) -> int:
+        """Converte idade animal para equivalente humano"""
+        if self.especie.lower() == "cachorro":
+            return self.idade * 7
+        return self.idade
