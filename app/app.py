@@ -55,7 +55,7 @@ def editar(cliente_id):
         cliente.nome = request.form['nome']
         cliente.telefone = request.form['telefone']
 
-        # Atualiza o pet (assumindo 1 pet por cliente)
+        # Atualiza o pet
         if len(cliente.pets) > 0:
             cliente.pets[0]['nome'] = request.form['nome_pet']
             cliente.pets[0]['tipo'] = request.form['tipo_pet']
@@ -63,6 +63,18 @@ def editar(cliente_id):
         salvar_clientes(clientes)
 
     return redirect(url_for('index'))
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':

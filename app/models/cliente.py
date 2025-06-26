@@ -1,3 +1,6 @@
+#from app.models import Pessoa
+
+
 class Cliente:
     def __init__(self, nome, telefone, pets=None):
         self.nome = nome
